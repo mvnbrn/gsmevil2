@@ -36,7 +36,7 @@ text = ""
 sender = ""
 receiver = ""
 time = ""
-
+#----------------------------------------------------------------------------------------------
 class GsmSniffer():
     
     def sniffer():
@@ -57,7 +57,7 @@ class GsmSniffer():
                             ImsiEvil().get_imsi(packet)
         return gsm_sniffer
 
-
+#----------------------------------------------------------------------------------------------
 class ImsiEvil:
    
     def sql_db(self):
@@ -141,7 +141,7 @@ class ImsiEvil:
         socketio.emit('imsi',data)
         print("\033[0;37;48m {:3s}\033[0;32;48m; \033[0;37;48m {:16s} \033[0;32;48m; \033[0;37;48m {:12s}\033[0;32;48m; \033[0;37;48m\033[0;37;48m  {:5s} \033[0;32;48m;\033[0;37;48m   {:4s}\033[0;32;48m; \033[0;37;48m {:5}  \033[0;32;48m; \033[0;37;48m {:6}   \033[0;32;48m;".format(str(imsi_live_db[self.imsi]["id"]), self.imsi, imsi_live_db[self.imsi]["tmsi"], self.mcc, self.mnc, lac, ci))
         print ("\033[0;32;48m................................................................................")
-
+#----------------------------------------------------------------------------------------------
 class SmsEvil:
 
     def sql_db(self):
@@ -177,7 +177,9 @@ class SmsEvil:
                 self.receiver = packet[6].gsm_a_dtap_cld_party_bcd_num
                 self.text = packet.gsm_sms.sms_text
                 self.output()
+#----------------------------------------------------------------------------------------------
 
+#----------------------------------------------------------------------------------------------                
 def header():
     os.system('clear')
     title = '''
@@ -205,7 +207,10 @@ We are not responsible for any illegal activity !
 --------------------------------------------------------------------------------
     '''
     print ("\033[0;32;48m" + title)
+#----------------------------------------------------------------------------------------------
 
+
+    
 if __name__ == "__main__":
     parser = OptionParser(usage="%prog: [options]")
     parser.add_option("-i", "--iface", dest="iface", default="lo", help="Interface (default : lo)")
@@ -222,18 +227,26 @@ log = logging.getLogger('werkzeug')
 log.disabled = True
 socketio = SocketIO(app)
 
+
+#----------------------------------------------------------------------------------------------
 @app.route('/')
 def home():
     return render_template('home.html')
+#----------------------------------------------------------------------------------------------
 
+#----------------------------------------------------------------------------------------------
 @app.route('/sms/')
 def sms():
     return render_template('sms.html')
+#----------------------------------------------------------------------------------------------
 
+#----------------------------------------------------------------------------------------------
 @app.route('/imsi/')
 def imsi():
     return render_template('imsi.html')
+#----------------------------------------------------------------------------------------------
 
+#----------------------------------------------------------------------------------------------
 @socketio.on('sms_sniffer')
 def handel_sms_event(json):
     global gsm_sniffer, sms_sniffer
@@ -247,7 +260,9 @@ def handel_sms_event(json):
         print("sms sniffer stoped")
     socketio.emit('sniffers', {'imsi_sniffer' : imsi_sniffer, 'sms_sniffer' : sms_sniffer})
     return gsm_sniffer, sms_sniffer
+#----------------------------------------------------------------------------------------------
 
+#----------------------------------------------------------------------------------------------
 @socketio.on('imsi_sniffer')
 def handel_imsi_event(json):
     global gsm_sniffer, imsi_sniffer
@@ -261,26 +276,35 @@ def handel_imsi_event(json):
         print('imsi sniffer stoped')
     socketio.emit('sniffers', {'imsi_sniffer' : imsi_sniffer, 'sms_sniffer' : sms_sniffer})
     return gsm_sniffer, imsi_sniffer
+#----------------------------------------------------------------------------------------------
 
+#----------------------------------------------------------------------------------------------
 @socketio.on('sms_data')
 def handel_sms_data_event(json):
     socketio.emit('sniffers', {'imsi_sniffer' : imsi_sniffer, 'sms_sniffer' : sms_sniffer})
     smsEvil = SmsEvil()
     sms_data = smsEvil.get_all_data()
     socketio.emit('sms_data', sms_data)
-
+#----------------------------------------------------------------------------------------------
+    
+#----------------------------------------------------------------------------------------------
 @socketio.on('imsi_data')
 def handel_imsi_data_event(json):
     socketio.emit('sniffers', {'imsi_sniffer' : imsi_sniffer, 'sms_sniffer' : sms_sniffer})
     imsiEvil =  ImsiEvil()
     imsi_data = imsiEvil.get_all_data()
     socketio.emit('imsi_data', imsi_data)
+#----------------------------------------------------------------------------------------------
 
+    
+#----------------------------------------------------------------------------------------------
 def server():
     app.run(host=options.host, port=options.port, threaded=True)
 
+#----------------------------------------------------------------------------------------------    
+
 if __name__ == "__main__":
-    server_thread =  Thread(target=server)
+     =  Thread(target=server)
     server_thread.start()
     header()
     print("my start")
