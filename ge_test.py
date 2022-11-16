@@ -61,7 +61,7 @@ class GsmSniffer():
 class ImsiEvil:
    
     def sql_db(self):
-        self.sql_conn = sqlite3.connect('database/imsi.db')
+        self.sql_conn = sqlite3.connect('database/imsi.db') # create connection sql_conn
         self.sql_conn.execute('CREATE TABLE IF NOT EXISTS imsi_data(id INTEGER PRIMARY KEY, imsi TEXT, tmsi TEXT, mcc INTEGER, mnc INTEGER, lac INTEGER, ci INTEGER, date_time timestamp)')
 
     def save_data(self):
@@ -73,9 +73,11 @@ class ImsiEvil:
 
     def get_data(self):
         self.sql_db()
-        self.cur = self.sql_conn.cursor()
+        self.cur = self.sql_conn.cursor()# create cursor
         self.cur.execute('SELECT * FROM imsi_data WHERE imsi=' + self.imsi)
         self.data = self.cur.fetchall()
+        #print("self msi="+self.imsi)    
+        #print(self.data)
 
     def get_all_data(self):
         self.sql_db()
@@ -90,25 +92,28 @@ class ImsiEvil:
 
     def filter_imsi(self):
         global imsi_id
-        self.sql_db()
+        self.sql_db()#  connect to base jr create data base
         self.get_data()
-        data = self.data
-        if data:
+        data = self.data    # elf.cur.execute('SELECT * FROM imsi_data WHERE imsi=' + self.imsi)
+                            #self.data = self.cur.fetchall()
+        if data:    # date not empty
             data = self.data[0]
             if(self.imsi != data[1]):
                 self.save_data()
             else:
                 if (self.tmsi != data[2]) & (self.tmsi != ''): #Check if tmsi is different than update in file db
                     self.update_data(data[0],self.tmsi)
+                self.imsi_id=data[0]
         else:
             self.save_data()
+ 
         
         if self.imsi in imsi_live_db:
             if imsi_live_db[self.imsi]['tmsi'] != self.tmsi: #Check if tmsi is different than update in live db
                 imsi_live_db[self.imsi]['tmsi'] = self.tmsi
         else:
-            #imsi_live_db[self.imsi] = {"id" : self.imsi_id,"tmsi" : self.tmsi, "mcc" : self.mcc, "mnc" : self.mnc}
-            imsi_live_db[self.imsi] = {"id" : 0,"tmsi" : self.tmsi, "mcc" : self.mcc, "mnc" : self.mnc}
+            imsi_live_db[self.imsi] = {"id" : self.imsi_id,"tmsi" : self.tmsi, "mcc" : self.mcc, "mnc" : self.mnc}
+            #imsi_live_db[self.imsi] = {"id" : 0,"tmsi" : self.tmsi, "mcc" : self.mcc, "mnc" : self.mnc}
         self.output()
 
     def get_imsi(self, packet):
@@ -304,8 +309,8 @@ def server():
 #----------------------------------------------------------------------------------------------    
 
 if __name__ == "__main__":
-     =  Thread(target=server)
-    server_thread.start()
+    server_thread =  Thread(target=server)
+    server_thread=server_thread.start()
     header()
     print("my start")
     try:
