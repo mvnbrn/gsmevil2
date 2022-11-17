@@ -99,6 +99,7 @@ class ImsiEvil:
             else:
                 if (self.tmsi != data[2]) & (self.tmsi != ''): #Check if tmsi is different than update in file db
                     self.update_data(data[0],self.tmsi)
+                self.imsi_id=data[0]
         else:
             self.save_data()
         
@@ -137,8 +138,8 @@ class ImsiEvil:
         data = {0 : str(imsi_live_db[self.imsi]["id"]), 1 : self.imsi, 2 : imsi_live_db[self.imsi]["tmsi"], 3 : self.mcc, 4 : self.mnc, 5 : lac, 6 : ci, 7 : datetime.now().strftime("%H:%M:%S %Y-%m-%d")}
         print(data)
         socketio.emit('imsi',data)
-        print("\033[0;37;48m {:3s}\033[0;31;48m; \033[0;37;48m {:16s} \033[0;31;48m; \033[0;37;48m {:12s}\033[0;31;48m; \033[0;37;48m\033[0;37;48m  {:5s} \033[0;31;48m;\033[0;37;48m   {:4s}\033[0;31;48m; \033[0;37;48m {:5}  \033[0;31;48m; \033[0;37;48m {:6}   \033[0;31;48m;".format(str(imsi_live_db[self.imsi]["id"]), self.imsi, imsi_live_db[self.imsi]["tmsi"], self.mcc, self.mnc, lac, ci))
-        print ("\033[0;31;48m................................................................................")
+        print("\033[0;37;48m {:3s}\033[0;32;48m; \033[0;37;48m {:16s} \033[0;32;48m; \033[0;37;48m {:12s}\033[0;32;48m; \033[0;37;48m\033[0;37;48m  {:5s} \033[0;32;48m;\033[0;37;48m   {:4s}\033[0;32;48m; \033[0;37;48m {:5}  \033[0;32;48m; \033[0;37;48m {:6}   \033[0;32;48m;".format(str(imsi_live_db[self.imsi]["id"]), self.imsi, imsi_live_db[self.imsi]["tmsi"], self.mcc, self.mnc, lac, ci))
+        print ("\033[0;32;48m................................................................................")
 
 class SmsEvil:
 
@@ -202,12 +203,12 @@ We are not responsible for any illegal activity !
 
 --------------------------------------------------------------------------------
     '''
-    print ("\033[0;31;48m" + title)
+    print ("\033[0;32;48m" + title)
 
 if __name__ == "__main__":
     parser = OptionParser(usage="%prog: [options]")
     parser.add_option("-i", "--iface", dest="iface", default="lo", help="Interface (default : lo)")
-    parser.add_option("-p", "--port", dest="port", default="80", type="int", help="Port (default : 80)")
+    parser.add_option("-p", "--port", dest="port", default="8080", type="int", help="Port (default : 80)")
     parser.add_option( "--host", dest="host", default="localhost", help="Host (default : localhost)")
     (options, args) = parser.parse_args()
 
@@ -217,7 +218,7 @@ app.config['COMPRESSOR_STATIC_PREFIX'] = 'static'
 app.static_folder = 'static'
 app.logger.disabled = True
 log = logging.getLogger('werkzeug')
-log.disabled = True
+log.disabled = False
 socketio = SocketIO(app)
 
 @app.route('/')
