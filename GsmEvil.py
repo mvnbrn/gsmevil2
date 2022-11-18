@@ -16,7 +16,9 @@ import pyshark
 from optparse import OptionParser
 import os, sys
 from flask import Flask, render_template, request
-from flask_socketio import SocketIO, emit
+from flask_socketio import SocketIO, emit, join_room, leave_room, close_room, rooms, disconnect
+    #close_room, rooms, disconnect
+#from flask_socketio import SocketIO, emit
 from threading import Thread, Event
 import sqlite3
 from datetime import datetime
@@ -36,6 +38,7 @@ text = ""
 sender = ""
 receiver = ""
 time = ""
+async_mode = None
 
 class GsmSniffer():
     
@@ -216,11 +219,12 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!'
 app.config['COMPRESSOR_STATIC_PREFIX'] = 'static'
 app.static_folder = 'static'
-app.logger.disabled = True
+app.logger.disabled = False
 log = logging.getLogger('werkzeug')
 log.disabled = False
-socketio = SocketIO(app)
+#socketio = SocketIO(app,async_mode=async_mode)
 
+socketio = SocketIO(app, async_mode=async_mode)
 @app.route('/')
 def home():
     return render_template('home.html')
@@ -236,6 +240,7 @@ def imsi():
 @socketio.on('sms_sniffer')
 def handel_sms_event(json):
     global gsm_sniffer, sms_sniffer
+    print("sms sniffer")
     if json == "on" and sms_sniffer != "on":
         sms_sniffer = "on"
         print("sms sniffer started")
@@ -250,6 +255,7 @@ def handel_sms_event(json):
 @socketio.on('imsi_sniffer')
 def handel_imsi_event(json):
     global gsm_sniffer, imsi_sniffer
+    print("imsi sniffer")
     if json == "on" and imsi_sniffer != "on":
         imsi_sniffer = "on"
         print('imsi sniffer started')
@@ -263,6 +269,7 @@ def handel_imsi_event(json):
 
 @socketio.on('sms_data')
 def handel_sms_data_event(json):
+    print("sms sdata")
     socketio.emit('sniffers', {'imsi_sniffer' : imsi_sniffer, 'sms_sniffer' : sms_sniffer})
     smsEvil = SmsEvil()
     sms_data = smsEvil.get_all_data()
@@ -270,18 +277,22 @@ def handel_sms_data_event(json):
 
 @socketio.on('imsi_data')
 def handel_imsi_data_event(json):
+    print("imsi data")
     socketio.emit('sniffers', {'imsi_sniffer' : imsi_sniffer, 'sms_sniffer' : sms_sniffer})
     imsiEvil =  ImsiEvil()
     imsi_data = imsiEvil.get_all_data()
     socketio.emit('imsi_data', imsi_data)
 
 def server():
-    app.run(host=options.host, port=options.port, threaded=True)
+    #app.run(host=options.host, port=options.port, threaded=True)
+    socketio.run(app,host=options.host,port=options.port)
 
 if __name__ == "__main__":
-    server_thread =  Thread(target=server)
-    server_thread.start()
+    #server_thread =  Thread(target=server)
+    #server_thread.start()
+    
     header()
+    server()
     try:
         GsmSniffer.sniffer()
     except KeyboardInterrupt:
