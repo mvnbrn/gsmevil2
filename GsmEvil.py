@@ -47,6 +47,8 @@ class GsmSniffer():
             if gsm_sniffer == "on":
                 capture = pyshark.LiveCapture(interface='lo', bpf_filter='port 4729 and not icmp and udp')
                 for packet in capture:
+             #       if packet.highest_layer=="LAPDM":
+            #          print(packet)
                     if sms_sniffer == "off":
                         if imsi_sniffer == "off":
                             gsm_sniffer == "off"
@@ -84,6 +86,7 @@ class ImsiEvil:
         self.cur = self.sql_conn.cursor()
         self.cur.execute('SELECT * FROM imsi_data')
         data = self.cur.fetchall()
+       # print(data)
         return data
 
     def update_data(self, id_, tmsi):
@@ -140,7 +143,9 @@ class ImsiEvil:
     def output(self):
         data = {0 : str(imsi_live_db[self.imsi]["id"]), 1 : self.imsi, 2 : imsi_live_db[self.imsi]["tmsi"], 3 : self.mcc, 4 : self.mnc, 5 : lac, 6 : ci, 7 : datetime.now().strftime("%H:%M:%S %Y-%m-%d")}
         print(data)
-        socketio.emit('imsi',data)
+        #data1=(str(imsi_live_db[self.imsi]["id"]),self.imsi,imsi_live_db[self.imsi]["tmsi"], self.mcc,self.mnc, lac, ci, datetime.now().strftime("%H:%M:%S %Y-%m-%d"))
+        #print(data1)
+        #socketio.emit('imsi',data1)
         print("\033[0;37;48m {:3s}\033[0;32;48m; \033[0;37;48m {:16s} \033[0;32;48m; \033[0;37;48m {:12s}\033[0;32;48m; \033[0;37;48m\033[0;37;48m  {:5s} \033[0;32;48m;\033[0;37;48m   {:4s}\033[0;32;48m; \033[0;37;48m {:5}  \033[0;32;48m; \033[0;37;48m {:6}   \033[0;32;48m;".format(str(imsi_live_db[self.imsi]["id"]), self.imsi, imsi_live_db[self.imsi]["tmsi"], self.mcc, self.mnc, lac, ci))
         print ("\033[0;32;48m................................................................................")
 
@@ -219,12 +224,12 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!'
 app.config['COMPRESSOR_STATIC_PREFIX'] = 'static'
 app.static_folder = 'static'
-app.logger.disabled = False
+app.logger.disabled = True
 log = logging.getLogger('werkzeug')
-log.disabled = False
+log.disabled = True
 #socketio = SocketIO(app,async_mode=async_mode)
 
-socketio = SocketIO(app, async_mode=async_mode)
+socketio = SocketIO(app, async_mode=async_mode,logger=True,engineio_logger=True,always_connect=True)
 @app.route('/')
 def home():
     return render_template('home.html')
@@ -288,11 +293,11 @@ def server():
     socketio.run(app,host=options.host,port=options.port)
 
 if __name__ == "__main__":
-    #server_thread =  Thread(target=server)
-    #server_thread.start()
+    server_thread =  Thread(target=server)
+    server_thread.start()
     
     header()
-    server()
+    #server()
     try:
         GsmSniffer.sniffer()
     except KeyboardInterrupt:
