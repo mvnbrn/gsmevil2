@@ -23,7 +23,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
     
    	<script type="text/javascript" src="{{ url_for('static', filename='./js/bootstrap.js') }}"></script>
-    	<script type="text/javascript" src="{{ url_for('static', filename='./js/bootstrap-table.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='./js/bootstrap-table.js') }}"></script>
 	
 	
 	
@@ -125,7 +125,7 @@
             table_height = window_height - 20;
 
 
-            $table.bootstrapTable({
+            $table.bootstrapTable({                           
                 toolbar: ".toolbar",
 
                 showRefresh: true,
@@ -178,6 +178,7 @@
             if(msg.sms_sniffer ==  'on' && $('#sms_sniffer').prop('checked') != true){
                 $('#sms_sniffer').prop("checked", true).change();
             }else if(msg.sms_sniffer ==  'off' && $('#sms_sniffer').prop('checked') == true){
+                //socket.emit('imsi_data', 'get');
                 $('#sms_sniffer').prop("checked", false).change();
             }
         }
@@ -192,6 +193,7 @@
                 ci: msg[6],
                 time: msg[7]
             };
+            
             $('#fresh-table').bootstrapTable('prepend', row);
         }
 
@@ -201,6 +203,7 @@
                     socket.emit('imsi_sniffer', 'on')
                 }else{
                     socket.emit('imsi_sniffer', 'off')
+                    socket.emit('imsi_data', 'get')
                 
                 }
             });

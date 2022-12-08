@@ -145,7 +145,7 @@ class ImsiEvil:
         print(data)
         #data1=(str(imsi_live_db[self.imsi]["id"]),self.imsi,imsi_live_db[self.imsi]["tmsi"], self.mcc,self.mnc, lac, ci, datetime.now().strftime("%H:%M:%S %Y-%m-%d"))
         #print(data1)
-        #socketio.emit('imsi',data1)
+        socketio.emit('imsi',data)
         print("\033[0;37;48m {:3s}\033[0;32;48m; \033[0;37;48m {:16s} \033[0;32;48m; \033[0;37;48m {:12s}\033[0;32;48m; \033[0;37;48m\033[0;37;48m  {:5s} \033[0;32;48m;\033[0;37;48m   {:4s}\033[0;32;48m; \033[0;37;48m {:5}  \033[0;32;48m; \033[0;37;48m {:6}   \033[0;32;48m;".format(str(imsi_live_db[self.imsi]["id"]), self.imsi, imsi_live_db[self.imsi]["tmsi"], self.mcc, self.mnc, lac, ci))
         print ("\033[0;32;48m................................................................................")
 
@@ -229,7 +229,7 @@ log = logging.getLogger('werkzeug')
 log.disabled = True
 #socketio = SocketIO(app,async_mode=async_mode)
 
-socketio = SocketIO(app, async_mode=async_mode,logger=True,engineio_logger=True,always_connect=True)
+socketio = SocketIO(app, async_mode=async_mode,logger=True,engineio_logger=False,always_connect=True)
 @app.route('/')
 def home():
     return render_template('home.html')
